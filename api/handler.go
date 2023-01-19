@@ -2,8 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/Prithvipal/todo-app/data"
 	"github.com/sirupsen/logrus"
@@ -23,11 +26,37 @@ type TodoHandler struct {
 }
 
 func (th TodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("servads", r.Method)
 	hanlderFunc[r.Method](w, r)
 }
 
 func deleteHanlder(w http.ResponseWriter, r *http.Request) {
-	logrus.Info("In Delete Handler")
+	id, err := validateUrlAndExtractParam(r.URL.Path)
+	if err != nil {
+		log.Println("Could not parse request url", err.Error())
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	err = data.DeleteTodo(id)
+	if err != nil {
+		log.Println("key not found in database", err.Error())
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+}
+
+func validateUrlAndExtractParam(endpoint string) (string, error) {
+	fmt.Println("endpoint==", endpoint)
+	r := `^(?:\/api/v1/todo\b)(?:\/[\w-]+)$`
+	match, err := regexp.MatchString(r, endpoint)
+	if err != nil {
+		return "", err
+	}
+	if !match {
+		return "", fmt.Errorf("endpoint does not match")
+	}
+	id := strings.TrimPrefix(endpoint, "/api/v1/todo/")
+	return id, nil
 }
 
 func createHanlder(w http.ResponseWriter, r *http.Request) {

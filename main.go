@@ -7,6 +7,6 @@ import (
 )
 
 func main() {
-	http.Handle("/api/v1/todo", api.TodoHandler{})
+	http.Handle("/api/v1/todo/", api.TodoHandler{})
 	http.ListenAndServe(":8080", nil)
 }

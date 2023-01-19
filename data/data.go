@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,6 +13,8 @@ const (
 	none statusType = iota
 	inProgress
 	completed
+
+	max
 )
 
 var (
@@ -36,9 +39,17 @@ func SaveTodo(todo Todo) error {
 }
 
 func ListTodo() []Todo {
-	var todos []Todo
+	todos := make([]Todo, 0)
 	for _, todo := range database {
 		todos = append(todos, todo)
 	}
 	return todos
+}
+
+func DeleteTodo(id string) error {
+	if _, ok := database[id]; !ok {
+		return fmt.Errorf("id not found %v", id)
+	}
+	delete(database, id)
+	return nil
 }
