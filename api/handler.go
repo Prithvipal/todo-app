@@ -24,7 +24,6 @@ type TodoHandler struct {
 }
 
 func (th TodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("servads", r.Method)
 	hanlderFunc[r.Method](w, r)
 }
 
@@ -122,5 +121,41 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 }
 func partialUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	log.Info("In partialUpdateHandler  ")
-	w.Write([]byte("hello"))
+	id, err := validateUrlAndExtractParam(r.URL.Path)
+	if err != nil {
+		log.Println("Could not parse request url", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	fmt.Println(id)
+	var todo data.Todo
+	err = json.NewDecoder(r.Body).Decode(&todo)
+	if err != nil {
+		log.Println("Could not parse request payload", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if todo.Status < 0 || todo.Status > data.MaxStatus-1 {
+		err := fmt.Errorf("valid range of status is 0 to %v", data.MaxStatus-1)
+		log.Println("Could not parse request payload", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	oldTodo, _ := data.GetTodo(id)
+	oldTodo.Status = todo.Status
+	if todo.Description != "" {
+		oldTodo.Description = todo.Description
+	}
+	fmt.Println(todo.Title)
+	if todo.Title != "" {
+		oldTodo.Title = todo.Title
+	}
+	err = data.UpdateTodo(oldTodo)
+	if err != nil {
+		log.Println("Internal error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
