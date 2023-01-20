@@ -46,6 +46,14 @@ func ListTodo() []Todo {
 	return todos
 }
 
+func GetTodo(id string) (Todo, error) {
+	todo, ok := database[id]
+	if !ok {
+		return Todo{}, fmt.Errorf("id not found %v", id)
+	}
+	return todo, nil
+}
+
 func DeleteTodo(id string) error {
 	if _, ok := database[id]; !ok {
 		return fmt.Errorf("id not found %v", id)
