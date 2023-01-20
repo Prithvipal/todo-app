@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
-	"strings"
 
 	"github.com/Prithvipal/todo-app/data"
 	"github.com/sirupsen/logrus"
@@ -45,20 +43,6 @@ func deleteHanlder(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func validateUrlAndExtractParam(endpoint string) (string, error) {
-	fmt.Println("endpoint==", endpoint)
-	r := `^(?:\/api/v1/todo\b)(?:\/[\w-]+)$`
-	match, err := regexp.MatchString(r, endpoint)
-	if err != nil {
-		return "", err
-	}
-	if !match {
-		return "", fmt.Errorf("endpoint does not match")
-	}
-	id := strings.TrimPrefix(endpoint, "/api/v1/todo/")
-	return id, nil
-}
-
 func createHanlder(w http.ResponseWriter, r *http.Request) {
 	var todo data.Todo
 	err := json.NewDecoder(r.Body).Decode(&todo)
@@ -83,19 +67,37 @@ func getHanlder(w http.ResponseWriter, r *http.Request) {
 
 func updateHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.Info("In updateHandler  ")
-	w.Write([]byte("hello"))
+	id, err := validateUrlAndExtractParam(r.URL.Path)
+	if err != nil {
+		log.Println("Could not parse request url", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	var todo data.Todo
+	err = json.NewDecoder(r.Body).Decode(&todo)
+	if err != nil {
+		log.Println("Could not parse request payload", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if todo.Status < 0 || todo.Status > data.MaxStatus-1 {
+		err := fmt.Errorf("valid range of status is 0 to %v", data.MaxStatus-1)
+		log.Println("Could not parse request payload", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	todo.Id = id
+	err = data.UpdateTodo(todo)
+
+	if err != nil {
+		log.Println("Internal error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 func partialUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.Info("In partialUpdateHandler  ")
 	w.Write([]byte("hello"))
-}
-
-func writeJSON(w http.ResponseWriter, records any) {
-	w.Header().Set("Content-Type", "application/json")
-	data, err := json.Marshal(records)
-	if err != nil {
-		log.Println("Error while getting TODO List", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Write(data)
 }

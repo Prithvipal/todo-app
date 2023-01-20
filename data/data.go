@@ -14,7 +14,7 @@ const (
 	inProgress
 	completed
 
-	max
+	MaxStatus
 )
 
 var (
@@ -51,5 +51,16 @@ func DeleteTodo(id string) error {
 		return fmt.Errorf("id not found %v", id)
 	}
 	delete(database, id)
+	return nil
+}
+
+func UpdateTodo(todo Todo) error {
+	if _, ok := database[todo.Id]; !ok {
+		return fmt.Errorf("id not found %v", todo.Id)
+	}
+
+	todo.UpdatedAt = time.Now()
+	todo.CreatedAt = database[todo.Id].CreatedAt
+	database[todo.Id] = todo
 	return nil
 }
