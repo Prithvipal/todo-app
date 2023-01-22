@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"net/http"
@@ -78,6 +79,21 @@ func getHanlder(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		todos := data.ListTodo(inputs)
+		if inputs["sort"] != "" {
+			sort.Slice(todos, func(i, j int) bool {
+				if inputs["sort"] == "title" {
+					c := strings.Compare(todos[i].Title, todos[j].Title)
+					return c < 0
+				} else if inputs["sort"] == "status" {
+					return todos[i].Status < todos[j].Status
+				} else if inputs["sort"] == "created_at" {
+					return todos[i].CreatedAt.Before(todos[j].CreatedAt)
+				} else {
+					return todos[i].UpdatedAt.Before(todos[j].UpdatedAt)
+				}
+			})
+		}
+
 		writeJSON(w, todos)
 		return
 	}

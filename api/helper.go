@@ -48,8 +48,8 @@ func validateParansAndExtract(values url.Values) (map[string]any, error) {
 	}
 
 	sort := values.Get("sort")
-	if sort != "" && sort != "status" && sort != "created_at" && sort != "updated_at" {
-		return nil, fmt.Errorf("invalid status key. valid sort keys are status, created_at and updated_at")
+	if sort != "" && sort != "title" && sort != "status" && sort != "created_at" && sort != "updated_at" {
+		return nil, fmt.Errorf("invalid status key. valid sort keys are title, status, created_at and updated_at")
 	}
 
 	m := map[string]any{
