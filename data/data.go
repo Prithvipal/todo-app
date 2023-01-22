@@ -24,27 +24,25 @@ func SaveTodo(todo models.Todo) error {
 func ListTodo(inputs map[string]any) []models.Todo {
 	todos := make([]models.Todo, 0)
 	title := inputs["title"]
-	status := inputs["status"]
-	s := status.(*models.StatusType)
-	fmt.Println("status=", *s)
+	s := inputs["status"]
+	status := s.(*models.StatusType)
 	for _, todo := range database {
-		if title == "" && status != nil {
+		if title == "" && status == nil {
 			todos = append(todos, todo)
 			continue
 		}
 		if title != "" && status != nil {
 			titleStr := title.(string)
-			if strings.Contains(todo.Title, string(titleStr)) && todo.Status == status {
+			if strings.Contains(todo.Title, string(titleStr)) && todo.Status == *status {
 				todos = append(todos, todo)
 			}
-		}
-		if title != "" {
+		} else if title != "" {
 			titleStr := title.(string)
 			if strings.Contains(todo.Title, string(titleStr)) {
 				todos = append(todos, todo)
 			}
 
-		} else if todo.Status == status {
+		} else if todo.Status == *status {
 			todos = append(todos, todo)
 		}
 
