@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"net/http"
 
@@ -69,8 +70,14 @@ func createHanlder(w http.ResponseWriter, r *http.Request) {
 
 func getHanlder(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
-	if url == "/api/v1/todo/" {
-		todos := data.ListTodo()
+	if url == "/api/v1/todo/" || strings.HasPrefix(url, "/api/v1/todo?") {
+		inputs, err := validateParansAndExtract(r.URL.Query())
+		if err != nil {
+			log.Println("Could not parse request", err.Error())
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		todos := data.ListTodo(inputs)
 		writeJSON(w, todos)
 		return
 	}

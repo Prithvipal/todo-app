@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/prithvipal/todo-app/models"
 )
 
 func writeJSON(w http.ResponseWriter, records any) {
@@ -30,4 +33,29 @@ func validateUrlAndExtractParam(endpoint string) (string, error) {
 	}
 	id := strings.TrimPrefix(endpoint, "/api/v1/todo/")
 	return id, nil
+}
+
+func validateParansAndExtract(values url.Values) (map[string]any, error) {
+	var err error
+	title := values.Get("title")
+	var status *models.StatusType
+	if values.Get("status") != "" {
+		status, err = models.NewStatusType(values.Get("status"))
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	sort := values.Get("sort")
+	if sort != "" && sort != "status" && sort != "created_at" && sort != "updated_at" {
+		return nil, fmt.Errorf("invalid status key. valid sort keys are status, created_at and updated_at")
+	}
+
+	m := map[string]any{
+		"title":  title,
+		"status": status,
+		"sort":   sort,
+	}
+	return m, nil
 }

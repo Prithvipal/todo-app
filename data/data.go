@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,10 +21,33 @@ func SaveTodo(todo models.Todo) error {
 	return nil
 }
 
-func ListTodo() []models.Todo {
+func ListTodo(inputs map[string]any) []models.Todo {
 	todos := make([]models.Todo, 0)
+	title := inputs["title"]
+	status := inputs["status"]
+	s := status.(*models.StatusType)
+	fmt.Println("status=", *s)
 	for _, todo := range database {
-		todos = append(todos, todo)
+		if title == "" && status != nil {
+			todos = append(todos, todo)
+			continue
+		}
+		if title != "" && status != nil {
+			titleStr := title.(string)
+			if strings.Contains(todo.Title, string(titleStr)) && todo.Status == status {
+				todos = append(todos, todo)
+			}
+		}
+		if title != "" {
+			titleStr := title.(string)
+			if strings.Contains(todo.Title, string(titleStr)) {
+				todos = append(todos, todo)
+			}
+
+		} else if todo.Status == status {
+			todos = append(todos, todo)
+		}
+
 	}
 	return todos
 }
