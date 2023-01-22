@@ -5,32 +5,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-)
-
-type statusType int
-
-const (
-	none statusType = iota
-	inProgress
-	completed
-
-	MaxStatus
+	"github.com/prithvipal/todo-app/models"
 )
 
 var (
-	database map[string]Todo = make(map[string]Todo)
+	database map[string]models.Todo = make(map[string]models.Todo)
 )
 
-type Todo struct {
-	Id          string     `json:"id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Status      statusType `json:"status"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-}
-
-func SaveTodo(todo Todo) error {
+func SaveTodo(todo models.Todo) error {
 	todo.Id = uuid.New().String()
 	todo.CreatedAt = time.Now()
 	todo.UpdatedAt = time.Now()
@@ -38,18 +20,18 @@ func SaveTodo(todo Todo) error {
 	return nil
 }
 
-func ListTodo() []Todo {
-	todos := make([]Todo, 0)
+func ListTodo() []models.Todo {
+	todos := make([]models.Todo, 0)
 	for _, todo := range database {
 		todos = append(todos, todo)
 	}
 	return todos
 }
 
-func GetTodo(id string) (Todo, error) {
+func GetTodo(id string) (models.Todo, error) {
 	todo, ok := database[id]
 	if !ok {
-		return Todo{}, fmt.Errorf("id not found %v", id)
+		return models.Todo{}, fmt.Errorf("id not found %v", id)
 	}
 	return todo, nil
 }
@@ -62,7 +44,7 @@ func DeleteTodo(id string) error {
 	return nil
 }
 
-func UpdateTodo(todo Todo) error {
+func UpdateTodo(todo models.Todo) error {
 	if _, ok := database[todo.Id]; !ok {
 		return fmt.Errorf("id not found %v", todo.Id)
 	}

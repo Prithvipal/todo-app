@@ -6,7 +6,8 @@ import (
 
 	"net/http"
 
-	"github.com/Prithvipal/todo-app/data"
+	"github.com/prithvipal/todo-app/data"
+	"github.com/prithvipal/todo-app/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -43,21 +44,22 @@ func deleteHanlder(w http.ResponseWriter, r *http.Request) {
 }
 
 func createHanlder(w http.ResponseWriter, r *http.Request) {
-	var todo data.Todo
+	var todo models.Todo
 	err := json.NewDecoder(r.Body).Decode(&todo)
 	if err != nil {
 		log.Println("Could not parse request payload", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = data.SaveTodo(todo)
+
 	if todo.Status != 0 {
-		err := fmt.Errorf("status must be 0 while creating todo. your input %v", todo.Status)
+		err := fmt.Errorf("status must be NOT_STARTED while creating todo")
 		log.Println("error processing request payload", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	err = data.SaveTodo(todo)
 	if err != nil {
 		log.Println("Internal error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -95,16 +97,9 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var todo data.Todo
+	var todo models.Todo
 	err = json.NewDecoder(r.Body).Decode(&todo)
 	if err != nil {
-		log.Println("Could not parse request payload", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if todo.Status < 0 || todo.Status > data.MaxStatus-1 {
-		err := fmt.Errorf("valid range of status is 0 to %v", data.MaxStatus-1)
 		log.Println("Could not parse request payload", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -127,17 +122,9 @@ func partialUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println(id)
-	var todo data.Todo
+	var todo models.Todo
 	err = json.NewDecoder(r.Body).Decode(&todo)
 	if err != nil {
-		log.Println("Could not parse request payload", err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if todo.Status < 0 || todo.Status > data.MaxStatus-1 {
-		err := fmt.Errorf("valid range of status is 0 to %v", data.MaxStatus-1)
 		log.Println("Could not parse request payload", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

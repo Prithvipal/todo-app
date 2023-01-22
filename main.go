@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/Prithvipal/todo-app/api"
+	"github.com/prithvipal/todo-app/api"
 )
 
 func main() {
