@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	hanlderFunc = map[string]func(w http.ResponseWriter, r *http.Request){
+	handlerFunc = map[string]func(w http.ResponseWriter, r *http.Request){
 		"GET":    getHanlder,
 		"POST":   createHanlder,
 		"DELETE": deleteHanlder,
@@ -27,7 +27,7 @@ type TodoHandler struct {
 }
 
 func (th TodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if hanlder, ok := hanlderFunc[r.Method]; ok {
+	if hanlder, ok := handlerFunc[r.Method]; ok {
 		hanlder(w, r)
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
