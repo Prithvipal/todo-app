@@ -53,14 +53,6 @@ var toEnum = map[string]StatusType{
 	"COMPLETED":   Completed,
 }
 
-// func (s statusType) Value() (statusType, error) {
-// 	key, ok := toEnum[s]
-// 	if !ok {
-// 		return "", fmt.Errorf("%v key not found", s)
-// 	}
-// 	return key, nil
-// }
-
 func (s *StatusType) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	val, ok := toString[*s]

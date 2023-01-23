@@ -61,12 +61,7 @@ func createHanlder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = data.SaveTodo(todo)
-	if err != nil {
-		log.Println("Internal error", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	data.SaveTodo(todo)
 }
 
 func getHanlder(w http.ResponseWriter, r *http.Request) {

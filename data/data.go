@@ -13,12 +13,11 @@ var (
 	database map[string]models.Todo = make(map[string]models.Todo)
 )
 
-func SaveTodo(todo models.Todo) error {
+func SaveTodo(todo models.Todo) {
 	todo.Id = uuid.New().String()
 	todo.CreatedAt = time.Now()
 	todo.UpdatedAt = time.Now()
 	database[todo.Id] = todo
-	return nil
 }
 
 func ListTodo(inputs map[string]any) []models.Todo {
