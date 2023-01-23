@@ -27,7 +27,11 @@ type TodoHandler struct {
 }
 
 func (th TodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	hanlderFunc[r.Method](w, r)
+	if hanlder, ok := hanlderFunc[r.Method]; ok {
+		hanlder(w, r)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
 
 func deleteHanlder(w http.ResponseWriter, r *http.Request) {
