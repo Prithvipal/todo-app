@@ -65,7 +65,8 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data.SaveTodo(todo)
+	id := data.SaveTodo(todo)
+	w.Write([]byte(id))
 }
 
 func getHanlder(w http.ResponseWriter, r *http.Request) {
