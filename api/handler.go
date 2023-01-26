@@ -16,7 +16,7 @@ import (
 var (
 	handlerFunc = map[string]func(w http.ResponseWriter, r *http.Request){
 		"GET":    getHanlder,
-		"POST":   createHanlder,
+		"POST":   createHandler,
 		"DELETE": deleteHanlder,
 		"PUT":    updateHandler,
 		"PATCH":  partialUpdateHandler,
@@ -49,7 +49,7 @@ func deleteHanlder(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createHanlder(w http.ResponseWriter, r *http.Request) {
+func createHandler(w http.ResponseWriter, r *http.Request) {
 	var todo models.Todo
 	err := json.NewDecoder(r.Body).Decode(&todo)
 	if err != nil {
