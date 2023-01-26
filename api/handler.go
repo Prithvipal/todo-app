@@ -71,31 +71,40 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 func getHanlder(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	if url == "/api/v1/todo/" || strings.HasPrefix(url, "/api/v1/todo?") {
-		inputs, err := validateParansAndExtract(r.URL.Query())
-		if err != nil {
-			log.Println("Could not parse request", err.Error())
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		todos := data.ListTodo(inputs)
-		if inputs["sort"] != "" {
-			sort.Slice(todos, func(i, j int) bool {
-				if inputs["sort"] == "title" {
-					c := strings.Compare(todos[i].Title, todos[j].Title)
-					return c < 0
-				} else if inputs["sort"] == "status" {
-					return todos[i].Status < todos[j].Status
-				} else if inputs["sort"] == "created_at" {
-					return todos[i].CreatedAt.Before(todos[j].CreatedAt)
-				} else {
-					return todos[i].UpdatedAt.Before(todos[j].UpdatedAt)
-				}
-			})
-		}
-
-		writeJSON(w, todos)
+		listHandler(w, r)
 		return
 	}
+	getByIDHandler(w, r)
+}
+
+func listHandler(w http.ResponseWriter, r *http.Request) {
+	inputs, err := validateParansAndExtract(r.URL.Query())
+	if err != nil {
+		log.Println("Could not parse request", err.Error())
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	todos := data.ListTodo(inputs)
+	if inputs["sort"] != "" {
+		sort.Slice(todos, func(i, j int) bool {
+			if inputs["sort"] == "title" {
+				c := strings.Compare(todos[i].Title, todos[j].Title)
+				return c < 0
+			} else if inputs["sort"] == "status" {
+				return todos[i].Status < todos[j].Status
+			} else if inputs["sort"] == "created_at" {
+				return todos[i].CreatedAt.Before(todos[j].CreatedAt)
+			} else {
+				return todos[i].UpdatedAt.Before(todos[j].UpdatedAt)
+			}
+		})
+	}
+
+	writeJSON(w, todos)
+}
+
+func getByIDHandler(w http.ResponseWriter, r *http.Request) {
+	url := r.URL.Path
 	id, err := validateUrlAndExtractParam(url)
 	if err != nil {
 		log.Println("Could not parse request", err.Error())
