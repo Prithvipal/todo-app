@@ -15,9 +15,9 @@ import (
 
 var (
 	handlerFunc = map[string]func(w http.ResponseWriter, r *http.Request){
-		"GET":    getHanlder,
+		"GET":    getHandler,
 		"POST":   createHandler,
-		"DELETE": deleteHanlder,
+		"DELETE": deleteHandler,
 		"PUT":    updateHandler,
 		"PATCH":  partialUpdateHandler,
 	}
@@ -34,7 +34,7 @@ func (th TodoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteHanlder(w http.ResponseWriter, r *http.Request) {
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := validateUrlAndExtractParam(r.URL.Path)
 	if err != nil {
 		log.Println("Could not parse request url", err.Error())
@@ -69,7 +69,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(id))
 }
 
-func getHanlder(w http.ResponseWriter, r *http.Request) {
+func getHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Path
 	if url == "/api/v1/todo/" || strings.HasPrefix(url, "/api/v1/todo?") {
 		listHandler(w, r)
@@ -79,7 +79,7 @@ func getHanlder(w http.ResponseWriter, r *http.Request) {
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
-	inputs, err := validateParansAndExtract(r.URL.Query())
+	inputs, err := validateAndExtractReqParam(r.URL.Query())
 	if err != nil {
 		log.Println("Could not parse request", err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)

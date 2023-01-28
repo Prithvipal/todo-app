@@ -35,7 +35,7 @@ func validateUrlAndExtractParam(endpoint string) (string, error) {
 	return id, nil
 }
 
-func validateParansAndExtract(values url.Values) (map[string]any, error) {
+func validateAndExtractReqParam(values url.Values) (map[string]any, error) {
 	var err error
 	title := values.Get("title")
 	var status *models.StatusType
