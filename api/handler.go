@@ -162,7 +162,12 @@ func partialUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oldTodo, _ := data.GetTodo(id)
+	oldTodo, err := data.GetTodo(id)
+	if err != nil {
+		log.Println("id not found", err.Error())
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 	oldTodo.Status = todo.Status
 	if todo.Description != "" {
 		oldTodo.Description = todo.Description
